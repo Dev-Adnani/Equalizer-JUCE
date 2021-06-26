@@ -93,8 +93,7 @@ void EqualizerJUCEAudioProcessor::changeProgramName (int index, const juce::Stri
 //==============================================================================
 void EqualizerJUCEAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
-    // Use this method as the place to do any pre-playback
-    // initialisation that you need..
+ 
     juce::dsp::ProcessSpec spec;
     spec.maximumBlockSize = samplesPerBlock;
     spec.numChannels = 1;
