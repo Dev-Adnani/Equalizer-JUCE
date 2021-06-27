@@ -253,9 +253,8 @@ void  EqualizerJUCEAudioProcessor::updateHighCutFilters(const ChainSettings& cha
     auto highCutCoefficients = makeHighCutFilter(chainSettings, getSampleRate());
 
     auto& leftHighCut = leftChain.get<ChainPositions::HighCut>();
-    updateCutFilter(leftHighCut, highCutCoefficients, chainSettings.highCutSlope);
-
     auto& rightHighCut = rightChain.get<ChainPositions::HighCut>();
+    updateCutFilter(leftHighCut, highCutCoefficients, chainSettings.highCutSlope);
     updateCutFilter(rightHighCut, highCutCoefficients, chainSettings.highCutSlope);
 }
 void EqualizerJUCEAudioProcessor::updateFilters()
