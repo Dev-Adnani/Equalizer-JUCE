@@ -19,10 +19,10 @@ void LookAndFeel::drawRotarySlider(juce::Graphics& g,
     using namespace juce;
     auto bounds = Rectangle<float>(x, y, width, height);
 
-    g.setColour(Colour(97u, 18u, 167u));
+    g.setColour(Colour(245u, 245u, 237u));
     g.fillEllipse(bounds);
 
-    g.setColour(Colour(255u, 154u, 1u));
+    g.setColour(Colour(255u, 152u,0u));
     g.drawEllipse(bounds , 1.f);
 
     if (auto* rswl = dynamic_cast<RotarySliderWithLabels*>(&slider))
@@ -54,7 +54,7 @@ void LookAndFeel::drawRotarySlider(juce::Graphics& g,
 
         r.setCentre(bounds.getCentre());
 
-        g.setColour(Colours::black);
+        g.setColour(Colour(64u, 59u, 88u));
         g.fillRect(r);
 
         g.setColour(Colours::white);
@@ -86,7 +86,7 @@ void RotarySliderWithLabels::paint(juce::Graphics& g)
 
     auto center = sliderBounds.toFloat().getCentre();
     auto radius = sliderBounds.getWidth() * 0.5f;
-    g.setColour(Colour(0u,172u,1u));
+    g.setColour(Colour(245u, 245u, 237u));
     g.setFont(getTextHeight());
 
     auto numChoices = labels.size();
@@ -214,7 +214,7 @@ void ResponseCurveComponent::updateChain()
 void ResponseCurveComponent::paint(juce::Graphics& g)
 {
     using namespace juce;
-    g.fillAll(Colours::black);
+    g.fillAll(Colour(64u, 59u, 88u));
 
     auto responseArea = getLocalBounds();
     auto w = responseArea.getWidth();
@@ -273,8 +273,7 @@ void ResponseCurveComponent::paint(juce::Graphics& g)
     {
         responseCurve.lineTo(responseArea.getX() + i, map(mags[i]));
     }
-
-    g.setColour(Colours::orange);
+    g.setColour(Colour(255u, 152u, 0u));
     g.drawRoundedRectangle(responseArea.toFloat(), 4.f, 1.f);
 
     g.setColour(Colours::white);
@@ -344,7 +343,7 @@ EqualizerJUCEAudioProcessorEditor::~EqualizerJUCEAudioProcessorEditor()
 void EqualizerJUCEAudioProcessorEditor::paint(juce::Graphics& g)
 {
     using namespace juce;
-    g.fillAll(Colours::black);
+    g.fillAll(Colour(64u, 59u, 88u));
 }
 
 
