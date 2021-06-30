@@ -274,15 +274,12 @@ void EqualizerJUCEAudioProcessorEditor::resized()
     auto lowCutArea = bounds.removeFromLeft(bounds.getWidth() * 0.33);
     auto highCutArea = bounds.removeFromRight(bounds.getWidth() * 0.5);
 
-    //lowcutBypassButton.setBounds(lowCutArea.removeFromTop(25));
     lowCutFreqSlider.setBounds(lowCutArea.removeFromTop(lowCutArea.getHeight() * 0.5));
     lowCutSlopeSlider.setBounds(lowCutArea);
 
-   //highcutBypassButton.setBounds(highCutArea.removeFromTop(25));
     highCutFreqSlider.setBounds(highCutArea.removeFromTop(highCutArea.getHeight() * 0.5));
     highCutSlopeSlider.setBounds(highCutArea);
 
-    //peakBypassButton.setBounds(bounds.removeFromTop(25));
     peakFreqSlider.setBounds(bounds.removeFromTop(bounds.getHeight() * 0.33));
     peakGainSlider.setBounds(bounds.removeFromTop(bounds.getHeight() * 0.5));
     peakQualitySlider.setBounds(bounds);
