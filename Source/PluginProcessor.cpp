@@ -214,10 +214,6 @@ ChainSettings getChainSettings(juce::AudioProcessorValueTreeState& apvts)
     settings.lowCutSlope = static_cast<Slope>(apvts.getRawParameterValue("LowCut Slope")->load());
     settings.highCutSlope = static_cast<Slope>(apvts.getRawParameterValue("HighCut Slope")->load());
 
-    //settings.lowCutBypassed = apvts.getRawParameterValue("LowCut Bypassed")->load() > 0.5f;
-    //settings.peakBypassed = apvts.getRawParameterValue("Peak Bypassed")->load() > 0.5f;
-    //settings.highCutBypassed = apvts.getRawParameterValue("HighCut Bypassed")->load() > 0.5f;
-
     return settings;
 }
 Coefficients makePeakFilter(const ChainSettings& chainSettings, double sampleRate)
