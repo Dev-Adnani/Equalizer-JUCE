@@ -83,6 +83,31 @@ void RotarySliderWithLabels::paint(juce::Graphics& g)
 
     getLookAndFeel().drawRotarySlider(g,sliderBounds.getX(), sliderBounds.getY(), sliderBounds.getWidth(),sliderBounds.getHeight(),
         jmap(getValue(),range.getStart(),range.getEnd(),0.0,1.0),startAng,endAng,*this);
+
+    auto center = sliderBounds.toFloat().getCentre();
+    auto radius = sliderBounds.getWidth() * 0.5f;
+    g.setColour(Colour(0u,172u,1u));
+    g.setFont(getTextHeight());
+
+    auto numChoices = labels.size();
+    for (int i = 0; i < numChoices; ++i)
+    {
+        auto pos = labels[i].pos;
+        jassert(0.f <= pos);
+        jassert(pos <= 1.f);
+
+        auto ang = jmap(pos, 0.f, 1.f, startAng, endAng);
+        auto c = center.getPointOnCircumference(radius + getTextHeight() * 0.5f + 1 , ang);
+        Rectangle<float> r;
+
+        auto str = labels[i].label;
+        r.setSize(g.getCurrentFont().getStringWidth(str), getTextHeight());
+        r.setCentre(c);
+        r.setY(r.getY() + getTextHeight());
+
+        g.drawFittedText(str, r.toNearestInt(), juce::Justification::centred, 1);
+    }
+
 }
 
 juce::Rectangle<int> RotarySliderWithLabels::getSliderBounds() const
@@ -269,6 +294,29 @@ EqualizerJUCEAudioProcessorEditor::EqualizerJUCEAudioProcessorEditor (EqualizerJ
     lowCutSlopeSliderAttachment(audioProcessor.apvts, "LowCut Slope", lowCutSlopeSlider),
     highCutSlopeSliderAttachment(audioProcessor.apvts, "HighCut Slope", highCutSlopeSlider)
 {
+
+    peakFreqSlider.labels.add({ 0.f,"20Hz" });
+    peakFreqSlider.labels.add({ 1.f,"20kHz" });
+
+    peakGainSlider.labels.add({ 0.f,"-24dB" });
+    peakGainSlider.labels.add({ 1.f,"+24db" });
+
+    peakQualitySlider.labels.add({ 0.f,"0.1" });
+    peakQualitySlider.labels.add({ 1.f,"10.0" });
+
+    lowCutFreqSlider.labels.add({ 0.f,"20Hz" });
+    lowCutFreqSlider.labels.add({ 1.f,"20kHz" });
+
+    highCutFreqSlider.labels.add({ 0.f,"20Hz" });
+    highCutFreqSlider.labels.add({ 1.f,"20kHz" });
+
+    lowCutSlopeSlider.labels.add({ 0.f,"12" });
+    lowCutSlopeSlider.labels.add({ 1.f,"48" });
+
+    highCutSlopeSlider.labels.add({ 0.f,"12" });
+    highCutSlopeSlider.labels.add({ 1.f,"48" });
+
+
     for (auto* comp : getComps())
     {
         addAndMakeVisible(comp);
