@@ -109,6 +109,12 @@ void EqualizerJUCEAudioProcessor::prepareToPlay(double sampleRate, int samplesPe
 
     leftChannelFifo.prepare(samplesPerBlock);
     rightChannelFifo.prepare(samplesPerBlock);
+
+    osc.initialise([](float x) { return std::sin(x); });
+
+    spec.numChannels = getTotalNumOutputChannels();
+    osc.prepare(spec);
+    osc.setFrequency(440);
 }
 
 void EqualizerJUCEAudioProcessor::releaseResources()
@@ -149,12 +155,6 @@ void EqualizerJUCEAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer,
     auto totalNumInputChannels = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
 
-    // In case we have more outputs than inputs, this code clears any output
-    // channels that didn't contain input data, (because these aren't
-    // guaranteed to be empty - they may contain garbage).
-    // This is here to avoid people getting screaming feedback
-    // when they first compile a plugin, but obviously you don't need to keep
-    // this code if your algorithm always overwrites all the output channels.
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear(i, 0, buffer.getNumSamples());
 
