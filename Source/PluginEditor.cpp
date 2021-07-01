@@ -76,11 +76,6 @@ void RotarySliderWithLabels::paint(juce::Graphics& g)
 
     auto sliderBounds = getSliderBounds();
 
- //   g.setColour(Colours::red);
- //   g.drawRect(getLocalBounds());
- //   g.setColour(Colours::yellow);
- //   g.drawRect(sliderBounds);
-
     getLookAndFeel().drawRotarySlider(g,sliderBounds.getX(), sliderBounds.getY(), sliderBounds.getWidth(),sliderBounds.getHeight(),
         jmap(getValue(),range.getStart(),range.getEnd(),0.0,1.0),startAng,endAng,*this);
 
@@ -161,7 +156,9 @@ juce::String RotarySliderWithLabels::getDisplayString() const
     return str;
 }
 
-ResponseCurveComponent::ResponseCurveComponent(EqualizerJUCEAudioProcessor& p) : audioProcessor(p)
+ResponseCurveComponent::ResponseCurveComponent(EqualizerJUCEAudioProcessor& p) : 
+audioProcessor(p) , 
+leftChannelFifo(&audioProcessor.leftChannelFifo)
 {
     const auto& params = audioProcessor.getParameters();
     for (auto param:params)
@@ -169,6 +166,9 @@ ResponseCurveComponent::ResponseCurveComponent(EqualizerJUCEAudioProcessor& p) :
         param->addListener(this);
     }
    
+    leftChannelFFTDataGenerator.changeOrder(FFTOrder::order2048);
+    monoBuffer.setSize(1, leftChannelFFTDataGenerator.getFFTSize());
+
     updateChain();
 
     startTimerHz(60);
@@ -191,11 +191,51 @@ void ResponseCurveComponent::parameterValueChanged(int parameterIndex, float new
 
 void ResponseCurveComponent::timerCallback()
 {
+    juce::AudioBuffer<float> tempIncomingBuffer;
+
+    while (leftChannelFifo->getNumCompleteBuffersAvailable() > 0)
+    {
+        if (leftChannelFifo->getAudioBuffer(tempIncomingBuffer))
+        {
+            auto size = tempIncomingBuffer.getNumSamples();
+
+            juce::FloatVectorOperations::copy(monoBuffer.getWritePointer(0, 0),
+                monoBuffer.getReadPointer(0, size),
+                monoBuffer.getNumSamples() - size);
+
+            juce::FloatVectorOperations::copy(monoBuffer.getWritePointer(0, monoBuffer.getNumSamples() - size),
+                tempIncomingBuffer.getReadPointer(0, 0),
+                size);
+
+            leftChannelFFTDataGenerator.produceFFTDataForRendering(monoBuffer, -48.f);
+        }
+    }
+
+    const auto fftBounds = getAnalyisArea().toFloat();
+    const auto fftSize = leftChannelFFTDataGenerator.getFFTSize();
+
+  
+    const auto binWidth = audioProcessor.getSampleRate() / (double)fftSize;
+
+    while (leftChannelFFTDataGenerator.getNumAvailableFFTDataBlocks() > 0)
+    {
+        std::vector<float> fftData;
+        if (leftChannelFFTDataGenerator.getFFTData(fftData))
+        {
+            pathProducer.generatePath(fftData, fftBounds, fftSize, binWidth, -48.f);
+        }
+    }
+
+
+    while (pathProducer.getNumPathsAvailable())
+    {
+        pathProducer.getPath(leftChannelFFTPath);
+    }
     if (parameterchanged.compareAndSetBool(false, true))
     {   
         updateChain();
-        repaint();
     }
+    repaint();
 }
 
 void ResponseCurveComponent::updateChain()
@@ -276,6 +316,10 @@ void ResponseCurveComponent::paint(juce::Graphics& g)
     {
         responseCurve.lineTo(responseArea.getX() + i, map(mags[i]));
     }
+
+    g.setColour(Colours::red);
+    g.strokePath(leftChannelFFTPath, PathStrokeType(1.f));
+
     g.setColour(Colour(255u, 152u, 0u));
     g.drawRoundedRectangle(getRenderArea().toFloat(), 4.f, 1.f);
 

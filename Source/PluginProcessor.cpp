@@ -107,6 +107,8 @@ void EqualizerJUCEAudioProcessor::prepareToPlay(double sampleRate, int samplesPe
 
     updateFilters();
 
+    leftChannelFifo.prepare(samplesPerBlock);
+    rightChannelFifo.prepare(samplesPerBlock);
 }
 
 void EqualizerJUCEAudioProcessor::releaseResources()
@@ -169,7 +171,8 @@ void EqualizerJUCEAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer,
     leftChain.process(leftContext);
     rightChain.process(rightContext);
 
-
+    leftChannelFifo.update(buffer);
+    rightChannelFifo.update(buffer);
 
 }
 
