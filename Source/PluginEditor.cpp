@@ -17,10 +17,11 @@ void LookAndFeel::drawRotarySlider(juce::Graphics& g,
     using namespace juce;
     auto bounds = Rectangle<float>(x, y, width, height);
 
-    g.setColour(Colour(245u, 245u, 237u));
+    auto enabled = slider.isEnabled();
+    g.setColour(enabled ? Colour(245u, 245u, 237u) : Colours::darkgrey);
     g.fillEllipse(bounds);
 
-    g.setColour(Colour(255u, 152u, 0u));
+    g.setColour(enabled ? Colour(255u, 152u, 0u) : Colours::grey);
     g.drawEllipse(bounds, 1.f);
 
     if (auto* rswl = dynamic_cast<RotarySliderWithLabels*>(&slider))
@@ -590,7 +591,43 @@ EqualizerJUCEAudioProcessorEditor::EqualizerJUCEAudioProcessorEditor(EqualizerJU
     highcutBypassButton.setLookAndFeel(&lnf);
     analyzerEnabledButton.setLookAndFeel(&lnf);
 
+    auto safePtr = juce::Component::SafePointer<EqualizerJUCEAudioProcessorEditor>(this);
+    peakBypassButton.onClick = [safePtr]()
+    {
+        if (auto* comp = safePtr.getComponent())
+        {
+            auto bypassed = comp->peakBypassButton.getToggleState();
+
+            comp->peakFreqSlider.setEnabled(!bypassed);
+            comp->peakGainSlider.setEnabled(!bypassed);
+            comp->peakQualitySlider.setEnabled(!bypassed);
+        }
+    };
+
+    lowcutBypassButton.onClick = [safePtr]()
+    {
+        if (auto* comp = safePtr.getComponent())
+        {
+            auto bypassed = comp->lowcutBypassButton.getToggleState();
+
+            comp->lowCutFreqSlider.setEnabled(!bypassed);
+            comp->lowCutSlopeSlider.setEnabled(!bypassed);
+        }
+    };
+
+    highcutBypassButton.onClick = [safePtr]()
+    {
+        if (auto* comp = safePtr.getComponent())
+        {
+            auto bypassed = comp->highcutBypassButton.getToggleState();
+
+            comp->highCutFreqSlider.setEnabled(!bypassed);
+            comp->highCutSlopeSlider.setEnabled(!bypassed);
+        }
+    };
+
     setSize(600, 400);
+
 }
 
 EqualizerJUCEAudioProcessorEditor::~EqualizerJUCEAudioProcessorEditor()
